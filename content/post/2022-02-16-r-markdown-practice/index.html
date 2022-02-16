@@ -1,0 +1,228 @@
+---
+title: "R markdown practice"
+author: ''
+date: '2022-02-16'
+slug: r-markdown-practice
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<pre class="r"><code>library(datasets)
+data(iris)
+#Load packages
+pkgs &lt;- c(&quot;rstatix&quot;, &quot;emmeans&quot;, &quot;psych&quot;, &quot;tidyr&quot;, &quot;tidyverse&quot;, &quot;psych&quot;, &quot;dplyr&quot;, &quot;ggplot2&quot;, &quot;lm.beta&quot;, &quot;car&quot;, &quot;Hmisc&quot;, &quot;skimr&quot;, &quot;janitor&quot;)
+lapply(pkgs, library, character.only = TRUE)</code></pre>
+<div id="intro" class="section level1">
+<h1>Intro</h1>
+<div id="code-chunks" class="section level2">
+<h2>Code Chunks</h2>
+<pre class="r"><code>summary(iris)</code></pre>
+<pre><code>##   Sepal.Length    Sepal.Width     Petal.Length    Petal.Width   
+##  Min.   :4.300   Min.   :2.000   Min.   :1.000   Min.   :0.100  
+##  1st Qu.:5.100   1st Qu.:2.800   1st Qu.:1.600   1st Qu.:0.300  
+##  Median :5.800   Median :3.000   Median :4.350   Median :1.300  
+##  Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.199  
+##  3rd Qu.:6.400   3rd Qu.:3.300   3rd Qu.:5.100   3rd Qu.:1.800  
+##  Max.   :7.900   Max.   :4.400   Max.   :6.900   Max.   :2.500  
+##        Species  
+##  setosa    :50  
+##  versicolor:50  
+##  virginica :50  
+##                 
+##                 
+## </code></pre>
+<pre class="r"><code>#Sum of 2 + 2
+2 + 2</code></pre>
+<pre><code>## [1] 4</code></pre>
+<pre class="r"><code>#Average Sepal Length
+mean(iris$Sepal.Length)</code></pre>
+<pre><code>## [1] 5.843333</code></pre>
+<pre class="r"><code>#Levels of Species
+unique(iris$Species)</code></pre>
+<pre><code>## [1] setosa     versicolor virginica 
+## Levels: setosa versicolor virginica</code></pre>
+<p>#Text
+<em>italics</em> and <em>italics</em>
+<strong>bold</strong> and <strong>bold</strong>
+superscript<sup>2</sup>
+<del>strikethrough</del>
+<a href="www.rstudio.com">link</a></p>
+<p>#Headers</p>
+<pre class="r"><code># Header 1
+## Header 2</code></pre>
+<div id="header-3" class="section level3">
+<h3>Header 3</h3>
+<div id="header-4" class="section level4">
+<h4>Header 4</h4>
+<div id="header-5" class="section level5">
+<h5>Header 5</h5>
+<div id="header-6" class="section level6">
+<h6>Header 6</h6>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="symbols" class="section level2">
+<h2>Symbols</h2>
+<p>endash: –
+emdash: —
+ellipsis: …
+incline equation: <span class="math inline">\(A = \pi*r^{2}\)</span></p>
+<p>horizontal rule</p>
+<hr />
+<blockquote>
+<p>block quote</p>
+</blockquote>
+<ul>
+<li>unordered list</li>
+<li>item 2
+<ul>
+<li>sub-item 1</li>
+<li>sub-item 2</li>
+</ul></li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>ordered list</li>
+<li>item 2</li>
+</ol>
+<ul>
+<li>sub-item 1</li>
+<li>sub-item 2</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th>First Header</th>
+<th>Second Header</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Table Cell 1</td>
+<td>Cell 2</td>
+</tr>
+<tr class="even">
+<td>Cell 3</td>
+<td>Cell 4</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="date" class="section level2">
+<h2>Date</h2>
+<pre class="r"><code>Sys.Date()</code></pre>
+</div>
+</div>
+<div id="code-specifications" class="section level1">
+<h1>Code Specifications</h1>
+<div id="display-code" class="section level2">
+<h2>Display Code</h2>
+<pre><code>##   Sepal.Length    Sepal.Width     Petal.Length    Petal.Width   
+##  Min.   :4.300   Min.   :2.000   Min.   :1.000   Min.   :0.100  
+##  1st Qu.:5.100   1st Qu.:2.800   1st Qu.:1.600   1st Qu.:0.300  
+##  Median :5.800   Median :3.000   Median :4.350   Median :1.300  
+##  Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.199  
+##  3rd Qu.:6.400   3rd Qu.:3.300   3rd Qu.:5.100   3rd Qu.:1.800  
+##  Max.   :7.900   Max.   :4.400   Max.   :6.900   Max.   :2.500  
+##        Species  
+##  setosa    :50  
+##  versicolor:50  
+##  virginica :50  
+##                 
+##                 
+## </code></pre>
+</div>
+<div id="display-warnings" class="section level2">
+<h2>Display warnings</h2>
+<pre class="r"><code>warning = TRUE: Whether to display warnings</code></pre>
+<div id="with-warning" class="section level3">
+<h3>With warning</h3>
+<pre class="r"><code>data &lt;- data.frame(x = 1 : 5,    # Create example data
+                   y= 1 : 5)
+
+ggp &lt;- ggplot(data, aes(x, y)) + # Create ggplot2 w/ default...
+  geom_point()
+
+ggp +                            # Modify axis limits
+  scale_x_continuous(limits = c(2,5))</code></pre>
+<pre><code>## Warning: Removed 1 rows containing missing values (geom_point).</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+## Without warning</p>
+<pre class="r"><code>data &lt;- data.frame(x = 1 : 5,    # Create example data
+                   y= 1 : 5)
+
+ggp &lt;- ggplot(data, aes(x, y)) + # Create ggplot2 w/ default...
+  geom_point()
+
+ggp +                            # Modify axis limits
+  scale_x_continuous(limits = c(2,5))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+## Display Output, Output included</p>
+<pre class="r"><code>summary(iris)</code></pre>
+<pre><code>##   Sepal.Length    Sepal.Width     Petal.Length    Petal.Width   
+##  Min.   :4.300   Min.   :2.000   Min.   :1.000   Min.   :0.100  
+##  1st Qu.:5.100   1st Qu.:2.800   1st Qu.:1.600   1st Qu.:0.300  
+##  Median :5.800   Median :3.000   Median :4.350   Median :1.300  
+##  Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.199  
+##  3rd Qu.:6.400   3rd Qu.:3.300   3rd Qu.:5.100   3rd Qu.:1.800  
+##  Max.   :7.900   Max.   :4.400   Max.   :6.900   Max.   :2.500  
+##        Species  
+##  setosa    :50  
+##  versicolor:50  
+##  virginica :50  
+##                 
+##                 
+## </code></pre>
+</div>
+</div>
+<div id="output-not-included" class="section level2">
+<h2>Output not Included</h2>
+<pre class="r"><code>summary(iris)</code></pre>
+</div>
+<div id="display-messages" class="section level2">
+<h2>Display Messages</h2>
+<p>Default message = TRUE</p>
+</div>
+<div id="messages-not-included" class="section level2">
+<h2>Messages not Included</h2>
+<pre class="r"><code># load packages
+pkgs &lt;- c(&quot;rstatix&quot;, &quot;emmeans&quot;, &quot;psych&quot;, &quot;tidyr&quot;, &quot;tidyverse&quot;, &quot;psych&quot;, &quot;dplyr&quot;, &quot;ggplot2&quot;, &quot;lm.beta&quot;, &quot;car&quot;, &quot;Hmisc&quot;, &quot;skimr&quot;, &quot;janitor&quot;)
+lapply(pkgs, library, character.only = TRUE)</code></pre>
+</div>
+<div id="bold-code" class="section level2">
+<h2>Bold Code</h2>
+<pre class="r"><code>### &lt;b&gt;
+x  &lt;- 10
+y &lt;- x * 2
+### &lt;b&gt;</code></pre>
+</div>
+</div>
+<div id="advanced-inline-code" class="section level1">
+<h1>Advanced Inline Code</h1>
+<pre class="r"><code># Run ANOVA
+model &lt;- aov(Sepal.Length ~ Species, data = iris)
+summary(model)</code></pre>
+<pre><code>##              Df Sum Sq Mean Sq F value Pr(&gt;F)    
+## Species       2  63.21  31.606   119.3 &lt;2e-16 ***
+## Residuals   147  38.96   0.265                   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code># Create clean tibble from output using broom package
+library(broom)
+modelmatrix &lt;- broom::tidy(model)
+
+# Round to 3 decimals for clean output
+modelmatrix$statistic &lt;- sprintf(modelmatrix$statistic, fmt = &#39;%#.3f&#39;)
+modelmatrix$p.value &lt;- sprintf(modelmatrix$p.value, fmt = &#39;%#.3f&#39;)
+
+modelmatrix</code></pre>
+<pre><code>## # A tibble: 2 x 6
+##   term         df sumsq meansq statistic p.value
+##   &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;  
+## 1 Species       2  63.2 31.6   119.265   0.000  
+## 2 Residuals   147  39.0  0.265 NA        NA</code></pre>
+</div>

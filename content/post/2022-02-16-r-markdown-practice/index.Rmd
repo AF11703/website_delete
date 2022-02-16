@@ -1,0 +1,163 @@
+---
+title: "R markdown practice"
+author: ''
+date: '2022-02-16'
+slug: r-markdown-practice
+categories: []
+tags: []
+---
+
+```{r, warning = FALSE, message = FALSE, results = FALSE}
+library(datasets)
+data(iris)
+#Load packages
+pkgs <- c("rstatix", "emmeans", "psych", "tidyr", "tidyverse", "psych", "dplyr", "ggplot2", "lm.beta", "car", "Hmisc", "skimr", "janitor")
+lapply(pkgs, library, character.only = TRUE)
+```
+
+# Intro
+
+
+## Code Chunks
+```{r}
+summary(iris)
+```
+```{r}
+#Sum of 2 + 2
+2 + 2
+
+#Average Sepal Length
+mean(iris$Sepal.Length)
+```
+```{r}
+#Levels of Species
+unique(iris$Species)
+```
+#Text
+*italics* and _italics_
+**bold** and __bold__
+superscript^2^
+~~strikethrough~~
+[link](www.rstudio.com)
+
+#Headers
+```{r}
+# Header 1
+## Header 2
+```
+### Header 3
+#### Header 4
+##### Header 5
+###### Header 6
+
+## Symbols
+endash: --
+emdash: ---
+ellipsis: ...
+incline equation: $A = \pi*r^{2}$
+
+horizontal rule 
+
+***
+
+> block quote
+
+* unordered list
+* item 2
+  + sub-item 1
+  + sub-item 2
+  
+1. ordered list
+2. item 2
+  + sub-item 1
+  + sub-item 2
+
+First Header | Second Header 
+-------------|--------------
+Table Cell 1 |Cell 2
+Cell 3 | Cell 4
+
+## Date
+```{r, eval = FALSE}
+Sys.Date()
+```
+# Code Specifications
+
+## Display Code
+```{r, echo = FALSE, eval = FALSE}
+echo = TRUE: Whether to display code along with results
+Default is echo = TRUE
+```
+
+```{r, echo = FALSE}
+summary(iris)
+```
+
+## Display warnings
+```{r, warning = FALSE, eval = FALSE}
+warning = TRUE: Whether to display warnings
+```
+### With warning
+```{r, warning = TRUE}
+data <- data.frame(x = 1 : 5,    # Create example data
+                   y= 1 : 5)
+
+ggp <- ggplot(data, aes(x, y)) + # Create ggplot2 w/ default...
+  geom_point()
+
+ggp +                            # Modify axis limits
+  scale_x_continuous(limits = c(2,5))
+```
+## Without warning
+```{r, warning = FALSE}
+data <- data.frame(x = 1 : 5,    # Create example data
+                   y= 1 : 5)
+
+ggp <- ggplot(data, aes(x, y)) + # Create ggplot2 w/ default...
+  geom_point()
+
+ggp +                            # Modify axis limits
+  scale_x_continuous(limits = c(2,5))
+```
+## Display Output, Output included 
+```{r, results = TRUE}
+summary(iris)
+```
+## Output not Included
+```{r, results = FALSE}
+summary(iris)
+```
+## Display Messages
+Default message = TRUE
+
+## Messages not Included
+```{r, message = FALSE, results = FALSE}
+# load packages
+pkgs <- c("rstatix", "emmeans", "psych", "tidyr", "tidyverse", "psych", "dplyr", "ggplot2", "lm.beta", "car", "Hmisc", "skimr", "janitor")
+lapply(pkgs, library, character.only = TRUE)
+```
+## Bold Code
+```{r}
+### <b>
+x  <- 10
+y <- x * 2
+### <b>
+```
+
+# Advanced Inline Code
+```{r}
+# Run ANOVA
+model <- aov(Sepal.Length ~ Species, data = iris)
+summary(model)
+
+# Create clean tibble from output using broom package
+library(broom)
+modelmatrix <- broom::tidy(model)
+
+# Round to 3 decimals for clean output
+modelmatrix$statistic <- sprintf(modelmatrix$statistic, fmt = '%#.3f')
+modelmatrix$p.value <- sprintf(modelmatrix$p.value, fmt = '%#.3f')
+
+modelmatrix
+```
+
