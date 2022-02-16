@@ -1,0 +1,58 @@
+---
+title: Single Data Frame Operations
+author: ''
+date: '2022-02-14'
+slug: single-data-frame-operations
+categories: []
+tags: []
+---
+## Import URL from GitHub
+```{r}
+url <- 'https://raw.githubusercontent.com/AF11703/tidyverse/main/hotels.csv'
+
+```
+## Call libraries
+```{r}
+library(tidyverse)
+hotels <- read_csv(url)
+
+```
+## Keep Variables
+```{r}
+hotels %>%
+  select(hotel, lead_time)
+```
+## Exclude Variables
+```{r}
+hotels %>%
+  select(-agent)
+```
+## Range of Variables
+```{r}
+hotels %>%
+  select(hotel:arrival_date_month)
+```
+## Variables with Certain Characteristics
+```{r}
+hotels %>%
+  select(starts_with("arrival"))
+```
+## First Five
+```{r}
+hotels %>%
+  slice(1:5)
+```
+## Filter
+```{r}
+hotels %>%
+  filter(hotel == "City Hotels")
+```
+```{r}
+hotels %>%
+  filter(
+    adults == 0,
+    children >= 1
+  ) %>%
+  select(adults, babies, children)
+```
+
