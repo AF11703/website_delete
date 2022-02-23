@@ -1,0 +1,156 @@
+---
+title: "Data Classes"
+author: ''
+date: '2022-02-23'
+slug: data-classes
+categories: []
+tags: []
+---
+# Factors
+* R uses factors to handle categorical variables, variables that have a fixed and known set of possible values.
+```{r}
+x <- factor(c("BS", "MS", "PhD", "MS"))
+x
+
+typeof(x)
+class(x)
+```
+* We can think of factors like character (level labels) and an integer (level numbers) glued together
+```{r}
+library(tidyverse)
+glimpse(x)
+as.integer(x)
+```
+# Dates
+```{r}
+y <- as.Date("2020-01-01")
+y
+typeof(y)
+class(y)
+```
+* We can think of dates like an integer (the number of days since the origin, 1 Jan 1970) and an integer (the origin) glued together.
+```{r}
+as.integer(y)
+```
+```{r}
+as.integer(y) / 365 #Roughly 50 yrs
+```
+# Data Frames
+* We can think of data frames like vectors of equal length glued together.
+```{r}
+df <- data.frame(x = 1:2, y = 3:4)
+df
+
+typeof(df)
+class(df)
+```
+# Lists 
+* Lists are a generic vector container, vectors of any type can go in them.
+```{r}
+l <- list(
+  x = 1:4,
+  y = c("hi", "hello", "jello"),
+  z = c(TRUE, FALSE)
+)
+l
+```
+## Lists and Data Frames
+* A data frame is a special list containing vectors of equal length.
+* When we use the "pull()" fucntion, we extract the vector from the data frame.
+```{r}
+df
+```
+```{r}
+df %>%
+  pull(y)
+```
+# Working with Factors
+
+## Read Data as Character Strings,
+```{r}
+catlovers <- 'https://raw.githubusercontent.com/AF11703/tidyverse/main/cat-lovers.csv'
+cat_lovers <- read_csv(catlovers)
+glimpse(cat_lovers)
+```
+### But Coerce when Plotting
+```{r}
+ggplot(cat_lovers, aes(x = handedness)) +
+  geom_bar()
+```
+
+#### Use Forcats to Manipulate Factors
+```{r}
+cat_lovers %>%
+  mutate(handedness = fct_infreq(handedness)) %>%
+  ggplot(aes(x = handedness)) +
+  geom_bar()
+```
+# Make a Date
+* **lubridate** is the tidyverse-friendly package that makes dealing with dates a little easier
+ 
+* It's not one of the core tidyverse packages, hence it's installed with *install.packages("tidyverse)* but it's not loaded with it, and needs to be explicitly loaded with *library(lubridate)*
+
+```{r}
+hotels <- read_csv('https://raw.githubusercontent.com/AF11703/tidyverse/main/hotels.csv')
+hotels %>%
+  select(starts_with("arrival_"))
+```
+## Step 1: Construct Dates
+```{r}
+library(glue)
+
+hotels %>%
+  mutate(
+    arrival_date = glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")
+  ) %>%
+  relocate(arrival_date)
+```
+## Step 2: Count Bookings per Date
+```{r}
+hotels %>%
+  mutate(arrival_date = glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")) %>%
+  count(arrival_date)
+```
+## Step 3: Visualise Bookings per Date
+```{r}
+hotels %>%
+  mutate(arrival_date = glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")) %>%
+  count(arrival_date) %>%
+  ggplot(aes(x = arrival_date, y = n, group = 1)) +
+  geom_line()
+```
+### Step 1 (REVISED): Construct Dates "as Dates"
+```{r}
+library(lubridate)
+library(glue)
+hotels %>%
+  mutate(
+    arrival_date = ymd(glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}"))
+    ) %>% 
+  relocate(arrival_date)
+```
+### Step 2: Count Bookings per Date 
+```{r}
+hotels %>%
+  mutate(arrival_date = ymd(glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}"))) %>% 
+  count(arrival_date)
+```
+### Step 3a: Visualise Bookings per Date
+```{r}
+hotels %>%
+  mutate(arrival_date = ymd(glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}"))) %>% 
+  count(arrival_date) %>%
+  ggplot(aes(x = arrival_date, y = n, group = 1)) +
+  geom_line()
+
+```
+### Step 3b: Visualise Using a Smooth Curve
+```{r}
+hotels %>%
+  mutate(arrival_date = ymd(glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}"))) %>% 
+  count(arrival_date) %>%
+  ggplot(aes(x = arrival_date, y = n, group = 1)) +
+  geom_smooth()
+```
+
+
