@@ -1,8 +1,8 @@
 ---
-title: "Data Recoding"
+title: "Data IO"
 author: ''
 date: '2022-02-23'
-slug: data-recoding
+slug: data-io
 categories: []
 tags: []
 ---
