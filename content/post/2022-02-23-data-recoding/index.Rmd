@@ -1,0 +1,111 @@
+---
+title: "Data Recoding"
+author: ''
+date: '2022-02-23'
+slug: data-recoding
+categories: []
+tags: []
+---
+**readr**
+* read_csv() - comma delimited files
+* read_csv2() - semicolon separated files (common in countries where , is used as the decimal place)
+* read_tsv() - tab delimited files
+* read_delim() - reads in files with any delimiter
+* read_fwf() - fixed width files
+
+**readxl**
+* read_excel() - read xls or xlsx files
+
+# Reading Data
+```{r}
+library(tidyverse)
+nobel <- read_csv('https://raw.githubusercontent.com/AF11703/tidyverse/main/nobel.csv')
+nobel
+```
+# Writing Data
+* Write a file
+```{r}
+df <- tribble(
+  ~x, ~y, 
+  1,  "a",
+  2,  "b",
+  3,  "c",
+)
+write_csv(df, file = "df.csv")
+```
+* Read it back in to inspect
+```{r}
+read_csv("df.csv")
+```
+# Variable Names
+## Data with Bad Names
+```{r}
+edibnb_badnames <- read_csv("https://raw.githubusercontent.com/AF11703/tidyverse/main/edibnb-badnames.csv")
+names(edibnb_badnames)
+```
+# Variable Types
+* Which type is x?
+```{r}
+dfna.csv <- 'https://raw.githubusercontent.com/AF11703/tidyverse/main/df-na.csv'
+  dfna.csv <- read_csv('https://raw.githubusercontent.com/AF11703/tidyverse/main/df-na.csv')
+```
+## Option 1: Explicit NAs
+```{r}
+read_csv('https://raw.githubusercontent.com/AF11703/tidyverse/main/df-na.csv',na = c("", "NA", ".", "9999", "Not applicable"))
+```
+## Option 2: Specify Column Types
+```{r}
+read_csv("https://raw.githubusercontent.com/AF11703/tidyverse/main/df-na.csv", col_types = list(col_double(), 
+                                            col_character(), 
+                                            col_character()))
+```
+# Favorite Foods
+```{r}
+library(readxl)
+fav_food <- read_excel('favourite-food.xlsx', na = c("N/A", "99999")) %>%
+janitor::clean_names()
+
+fav_food
+```
+```{r}
+fav_food <- fav_food %>%
+  mutate(
+    age = if_else(age == "five", "5", age),
+    age = as.numeric(age)
+  )
+glimpse(fav_food)
+```
+```{r}
+fav_food %>%
+  count(ses)
+```
+```{r}
+fav_food <- fav_food %>%
+  mutate(ses = fct_relevel(ses, "Low", "Middle", "High"))
+
+fav_food %>%
+  count(ses)
+```
+```{r}
+fav_food <- read_excel("favourite-food.xlsx", na = c("N/A", "99999")) %>%
+  janitor::clean_names() %>%
+  mutate(
+    age = if_else(age == "five", "5", age), 
+    age = as.numeric(age),
+    ses = fct_relevel(ses, "Low", "Middle", "High")
+  )
+fav_food
+```
+```{r}
+fav_food_clean <- read_csv('https://raw.githubusercontent.com/AF11703/tidyverse/main/fav-food-clean.csv')
+```
+# Other types of Data
+
+* **googlesheets4**: Google Sheets
+* **haven**: SPSS, Stata, and SAS files
+* **DBI**, along with a database specific backend (e.g. RMySQL, RSQLite, RPostgreSQL etc): allows you to run SQL queries against a database and return a data frame
+* **jsonline**: JSON
+* **xml2**: xml
+* **rvest**: web scraping
+* **httr**: web APIs
+* **sparklyr**: data loaded into spark
