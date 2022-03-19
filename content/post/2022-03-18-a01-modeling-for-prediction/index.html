@@ -1,0 +1,144 @@
+---
+title: 'A01: Modeling for Prediction'
+author: ''
+date: '2022-03-18'
+slug: a01-modeling-for-prediction
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="questions" class="section level1">
+<h1>Questions</h1>
+<p>What are the advantages and disadvantages of k-fold cross validation relative to:</p>
+<p>Single Split Validation set approach? (1)
+- This approach provides a convenient estimate of the test error by utilizing a training set of the data and a validation set. It is helpful to predict the responses of observations in the validation set through the use of randomly splitting the data into the two sets. It however, has a few disadvantages, such as how through this method, the estimate of the test error can be highly variable and in this approach, only a select subset of the observations are used.</p>
+<p>LOOCV? (1)
+- This method is also used to estimate test error and can be used to determine the best model for a data set. However, LOOCV doesn’t typically “shake up” the data enough, resulting in the estimates being highly correlated and averages having higher variance.</p>
+<p>Discuss Pros and cons of Bootstrapping (2)
+- Pros: Flexible and can be used to quantify the uncertainty associated with a given estimator or statistical learning method. Allows us to use computers in order to mimic the process of obtaining new data sets in order to estimate variability without generating additional samples.
+Cons: Procedures of bootstrapping often cannot be applied because for real data, you cannot generate new samples from the original population. Bootstrapping samples also have significant overlap with original data, which would cause the bootstrap to underestimate the true prediction error, a process must be done in order to regulate it.</p>
+</div>
+<div id="call-libraries" class="section level1">
+<h1>Call libraries</h1>
+<pre class="r"><code>library(boot)</code></pre>
+<pre><code>## Warning: package &#39;boot&#39; was built under R version 4.1.3</code></pre>
+<pre class="r"><code>library(readxl)</code></pre>
+</div>
+<div id="import-dataset" class="section level1">
+<h1>Import Dataset</h1>
+<pre class="r"><code>url &lt;- &quot;https://github.com/AF11703/website_delete/blob/main/Real%20estate%20valuation%20data%20set.xlsx?raw=true&quot;
+destfile &lt;- &quot;Real_20estate_20valuation_20data_20set.xlsx&quot;
+curl::curl_download(url, destfile)
+ml.db &lt;- read_excel(destfile)
+View(ml.db)</code></pre>
+</div>
+<div id="cross-validation" class="section level1">
+<h1>Cross Validation</h1>
+<pre class="r"><code>## Set seed
+set.seed(1)
+head(ml.db)</code></pre>
+<pre><code>## # A tibble: 6 x 8
+##      No `X1 transaction date` `X2 house age` `X3 distance to ~` `X4 number of ~`
+##   &lt;dbl&gt;                 &lt;dbl&gt;          &lt;dbl&gt;              &lt;dbl&gt;            &lt;dbl&gt;
+## 1     1                 2013.           32                 84.9               10
+## 2     2                 2013.           19.5              307.                 9
+## 3     3                 2014.           13.3              562.                 5
+## 4     4                 2014.           13.3              562.                 5
+## 5     5                 2013.            5                391.                 5
+## 6     6                 2013.            7.1             2175.                 3
+## # ... with 3 more variables: `X5 latitude` &lt;dbl&gt;, `X6 longitude` &lt;dbl&gt;,
+## #   `Y house price of unit area` &lt;dbl&gt;</code></pre>
+<pre class="r"><code>dim(ml.db)</code></pre>
+<pre><code>## [1] 414   8</code></pre>
+<pre class="r"><code>## Create Index
+train &lt;- sample(414, 207)
+head(train)</code></pre>
+<pre><code>## [1] 324 167 129 299 270 187</code></pre>
+<pre class="r"><code>## Make the variables in data set as locally accessible objects
+attach(ml.db)
+lm.fit &lt;- lm(No ~ `X2 house age`, data = ml.db , subset = train)
+lm.fit</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = No ~ `X2 house age`, data = ml.db, subset = train)
+## 
+## Coefficients:
+##    (Intercept)  `X2 house age`  
+##       217.8057         -0.3752</code></pre>
+<pre class="r"><code>mean((No - predict(lm.fit, ml.db))[-train]^2)</code></pre>
+<pre><code>## [1] 14372.97</code></pre>
+<pre class="r"><code>plot(No ~ `X2 house age`)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>## Fit a quadratic function
+lm.fit.poly &lt;- lm(No ~ poly(`X2 house age`,2), data = ml.db, subset = train)
+lm.fit.poly</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = No ~ poly(`X2 house age`, 2), data = ml.db, subset = train)
+## 
+## Coefficients:
+##              (Intercept)  poly(`X2 house age`, 2)1  poly(`X2 house age`, 2)2  
+##                   211.30                    -88.63                   -109.99</code></pre>
+<pre class="r"><code>mean((No - predict(lm.fit.poly, ml.db))[-train]^2)</code></pre>
+<pre><code>## [1] 14491.32</code></pre>
+<pre class="r"><code>n = 2
+set.seed(n)
+train &lt;- sample(414, 207)
+attach(ml.db)</code></pre>
+<pre><code>## The following objects are masked from ml.db (pos = 3):
+## 
+##     No, X1 transaction date, X2 house age, X3 distance to the nearest
+##     MRT station, X4 number of convenience stores, X5 latitude, X6
+##     longitude, Y house price of unit area</code></pre>
+<pre class="r"><code>lm.fit &lt;- lm(No ~ `X2 house age`, data = ml.db , subset = train)
+lm.fit.poly &lt;- lm(No ~ poly(`X2 house age`,2), data = ml.db, subset = train)
+mean((No - predict(lm.fit, ml.db))[-train]^2)</code></pre>
+<pre><code>## [1] 14487.71</code></pre>
+<pre class="r"><code>mean((No - predict(lm.fit.poly, ml.db))[-train]^2)</code></pre>
+<pre><code>## [1] 14509.79</code></pre>
+</div>
+<div id="k-fold" class="section level1">
+<h1>K Fold</h1>
+<pre class="r"><code>K = 10
+cv.error.10 &lt;- rep(0,5)
+degree &lt;- 1:5
+for (d in degree){
+  glm.fit &lt;- glm(No ~ poly(`X2 house age`, d), data = ml.db)
+  cv.error.10[d] &lt;- cv.glm(ml.db, glm.fit, K = K)$delta[1]
+}
+cv.error.10</code></pre>
+<pre><code>## [1] 14413.05 14484.37 14533.40 14547.07 14764.63</code></pre>
+<pre class="r"><code>plot(degree, cv.error.10, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+# Bootstrap</p>
+<pre class="r"><code>## Estimation of a Linear Model
+boot.fn &lt;- function(data, index){
+  return(coef(lm(No ~ `X2 house age`, data = data, subset = index)))
+}</code></pre>
+<pre class="r"><code>boot.fn(ml.db, 1:414)</code></pre>
+<pre><code>##    (Intercept) `X2 house age` 
+##     213.603483      -0.344585</code></pre>
+<pre class="r"><code>set.seed(1)
+boot.fn(ml.db, sample(414, 414, replace = T))</code></pre>
+<pre><code>##    (Intercept) `X2 house age` 
+##    213.9337816     -0.3666022</code></pre>
+<pre class="r"><code>boot.out &lt;- boot(ml.db, boot.fn, 100)
+boot.out</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = ml.db, statistic = boot.fn, R = 100)
+## 
+## 
+## Bootstrap Statistics :
+##       original      bias    std. error
+## t1* 213.603483 -1.17251042  11.2287021
+## t2*  -0.344585  0.04776648   0.5380777</code></pre>
+<pre class="r"><code>plot(boot.out)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+</div>

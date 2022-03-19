@@ -1,0 +1,112 @@
+---
+title: 'A01: Modeling for Prediction'
+author: ''
+date: '2022-03-18'
+slug: a01-modeling-for-prediction
+categories: []
+tags: []
+---
+# Questions
+ 
+ What are the advantages and disadvantages of k-fold cross validation relative to: 
+
+ Single Split Validation set approach? (1) 
+- This approach provides a convenient estimate of the test error by utilizing a training set of the data and a validation set. It is helpful to predict the responses of observations in the validation set through the use of randomly splitting the data into the two sets. It however, has a few disadvantages, such as how through this method, the estimate of the test error can be highly variable and in this approach, only a select subset of the observations are used.
+ 
+ LOOCV? (1) 
+-  This method is also used to estimate test error and can be used to determine the best model for a data set. However, LOOCV doesn't typically "shake up" the data enough, resulting in the estimates being highly correlated and averages having higher variance.
+
+ Discuss Pros and cons of Bootstrapping (2) 
+ - Pros: Flexible and can be used to quantify the uncertainty associated with a given estimator or statistical learning method. Allows us to use computers in order to mimic the process of obtaining new data sets in order to estimate variability without generating additional samples.
+   Cons: Procedures of bootstrapping often cannot be applied because for real data, you cannot generate new samples from the original population. Bootstrapping samples also have significant overlap with original data, which would cause the bootstrap to underestimate the true prediction error, a process must be done in order to regulate it.
+
+# Call libraries
+```{r}
+library(boot)
+library(readxl)
+```
+# Import Dataset
+```{r}
+url <- "https://github.com/AF11703/website_delete/blob/main/Real%20estate%20valuation%20data%20set.xlsx?raw=true"
+destfile <- "Real_20estate_20valuation_20data_20set.xlsx"
+curl::curl_download(url, destfile)
+ml.db <- read_excel(destfile)
+View(ml.db)
+```
+
+# Cross Validation
+```{r}
+## Set seed
+set.seed(1)
+head(ml.db)
+dim(ml.db)
+## Create Index
+train <- sample(414, 207)
+head(train)
+```
+```{r}
+## Make the variables in data set as locally accessible objects
+attach(ml.db)
+lm.fit <- lm(No ~ `X2 house age`, data = ml.db , subset = train)
+lm.fit
+```
+```{r}
+mean((No - predict(lm.fit, ml.db))[-train]^2)
+```
+```{r}
+plot(No ~ `X2 house age`)
+```
+```{r}
+## Fit a quadratic function
+lm.fit.poly <- lm(No ~ poly(`X2 house age`,2), data = ml.db, subset = train)
+lm.fit.poly
+```
+```{r}
+mean((No - predict(lm.fit.poly, ml.db))[-train]^2)
+```
+```{r}
+n = 2
+set.seed(n)
+train <- sample(414, 207)
+attach(ml.db)
+lm.fit <- lm(No ~ `X2 house age`, data = ml.db , subset = train)
+lm.fit.poly <- lm(No ~ poly(`X2 house age`,2), data = ml.db, subset = train)
+mean((No - predict(lm.fit, ml.db))[-train]^2)
+mean((No - predict(lm.fit.poly, ml.db))[-train]^2)
+```
+# K Fold
+```{r}
+K = 10
+cv.error.10 <- rep(0,5)
+degree <- 1:5
+for (d in degree){
+  glm.fit <- glm(No ~ poly(`X2 house age`, d), data = ml.db)
+  cv.error.10[d] <- cv.glm(ml.db, glm.fit, K = K)$delta[1]
+}
+cv.error.10
+```
+```{r}
+plot(degree, cv.error.10, type = "b")
+```
+# Bootstrap
+```{r}
+## Estimation of a Linear Model
+boot.fn <- function(data, index){
+  return(coef(lm(No ~ `X2 house age`, data = data, subset = index)))
+}
+```
+```{r}
+boot.fn(ml.db, 1:414)
+```
+```{r}
+set.seed(1)
+boot.fn(ml.db, sample(414, 414, replace = T))
+```
+```{r}
+boot.out <- boot(ml.db, boot.fn, 100)
+boot.out
+```
+```{r}
+plot(boot.out)
+```
+

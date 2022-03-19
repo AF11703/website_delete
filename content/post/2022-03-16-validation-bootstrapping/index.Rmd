@@ -1,0 +1,8 @@
+---
+title: Validation (Bootstrapping)
+author: ''
+date: '2022-03-16'
+slug: validation-bootstrapping
+categories: []
+tags: []
+---
