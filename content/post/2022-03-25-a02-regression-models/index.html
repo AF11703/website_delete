@@ -1,0 +1,56 @@
+---
+title: 'A02: Regression Models'
+author: ''
+date: '2022-03-25'
+slug: a02-regression-models
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<pre class="r"><code>library(readxl)
+library(tidyverse)</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.7
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>Professor_Proposes_Data &lt;- read_excel(&quot;C:/Users/aafra/Downloads/Professor_Proposes_Data.xlsx&quot;)
+ View(Professor_Proposes_Data)</code></pre>
+<pre class="r"><code>attach(Professor_Proposes_Data)
+lm.fit &lt;- lm(Carat~Price, data = Professor_Proposes_Data)
+lm.fit</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Carat ~ Price, data = Professor_Proposes_Data)
+## 
+## Coefficients:
+## (Intercept)        Price  
+##    7.80e+00     3.46e-09</code></pre>
+<pre class="r"><code>mean((Carat - predict(lm.fit, Professor_Proposes_Data)))</code></pre>
+<pre><code>## [1] -4.771171e-14</code></pre>
+<pre class="r"><code>ggplot(Professor_Proposes_Data, aes(Carat, Price))+
+  geom_line()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>lm.fit2 &lt;- lm(Carat~Colour, data = Professor_Proposes_Data)
+lm.fit2</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Carat ~ Colour, data = Professor_Proposes_Data)
+## 
+## Coefficients:
+## (Intercept)      ColourE      ColourF      ColourG      ColourH      ColourI  
+##     0.77850     -0.21757     -0.25540      0.01824     -0.19935     -0.16609  
+##     ColourJ      ColourK      ColourL  
+##    -0.07697      0.21376      0.32483</code></pre>
+<pre class="r"><code>ggplot(Professor_Proposes_Data, aes(Carat, Colour, color = Colour))+
+  geom_line()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(Professor_Proposes_Data, aes(Carat, Price, color = Colour))+
+  geom_line()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>

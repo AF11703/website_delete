@@ -1,0 +1,41 @@
+---
+title: 'A02: Regression Models'
+author: ''
+date: '2022-03-25'
+slug: a02-regression-models
+categories: []
+tags: []
+---
+```{r}
+library(readxl)
+library(tidyverse)
+Professor_Proposes_Data <- read_excel("C:/Users/aafra/Downloads/Professor_Proposes_Data.xlsx")
+ View(Professor_Proposes_Data)
+```
+
+```{r}
+attach(Professor_Proposes_Data)
+lm.fit <- lm(Carat~Price, data = Professor_Proposes_Data)
+lm.fit
+```
+```{r}
+mean((Carat - predict(lm.fit, Professor_Proposes_Data)))
+```
+
+```{r}
+ggplot(Professor_Proposes_Data, aes(Carat, Price))+
+  geom_line()
+```
+```{r}
+lm.fit2 <- lm(Carat~Colour, data = Professor_Proposes_Data)
+lm.fit2
+```
+```{r}
+ggplot(Professor_Proposes_Data, aes(Carat, Colour, color = Colour))+
+  geom_line()
+```
+```{r}
+ggplot(Professor_Proposes_Data, aes(Carat, Price, color = Colour))+
+  geom_line()
+```
+
