@@ -1,0 +1,102 @@
+---
+title: 'A02: Regression Models v2'
+author: ''
+date: '2022-03-30'
+slug: a02-regression-models-v2
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<pre class="r"><code># Call libraries
+library(readxl)
+library(tidyverse)</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.7
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(boot)</code></pre>
+<pre><code>## Warning: package &#39;boot&#39; was built under R version 4.1.3</code></pre>
+<p>Import the Professor Proposes Data set</p>
+<pre class="r"><code># Import Data set
+url &lt;- &quot;https://github.com/AF11703/website_delete/blob/main/Professor_Proposes_Data.xlsx?raw=true&quot;
+destfile &lt;- &quot;Professor_Proposes_Data.xlsx&quot;
+curl::curl_download(url, destfile)
+ppd.df &lt;- read_excel(destfile)
+View(ppd.df)
+attach(ppd.df)</code></pre>
+<pre class="r"><code>train &lt;- sample(440, 220)
+head(train)</code></pre>
+<pre><code>## [1]  19  39 108  93 395 204</code></pre>
+<pre class="r"><code>lm.fit &lt;- lm(Price ~ Carat, data = ppd.df)
+lm.fit</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Price ~ Carat, data = ppd.df)
+## 
+## Coefficients:
+## (Intercept)        Carat  
+##  -2.226e+09    2.475e+08</code></pre>
+<pre class="r"><code>plot(Price ~ Carat)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+Model for High Price and High Carat</p>
+<pre class="r"><code>lm.fit.poly &lt;- lm(Price ~ poly(Carat, 2), data = ppd.df, subset = train)
+lm.fit.poly</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Price ~ poly(Carat, 2), data = ppd.df, subset = train)
+## 
+## Coefficients:
+##     (Intercept)  poly(Carat, 2)1  poly(Carat, 2)2  
+##      -2.059e+09        1.996e+09       -4.385e+08</code></pre>
+<p>Bootstrap</p>
+<pre class="r"><code>boot.fn &lt;- function(data, index){
+  return(coef(lm(Price ~ Carat, data = data, subset = index)))
+}
+
+boot.fn(ppd.df, 1:220)</code></pre>
+<pre><code>## (Intercept)       Carat 
+## -1880589477   -90447815</code></pre>
+<pre class="r"><code>boot.out &lt;- boot(ppd.df, boot.fn, 100)
+boot.out</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = ppd.df, statistic = boot.fn, R = 100)
+## 
+## 
+## Bootstrap Statistics :
+##        original    bias    std. error
+## t1* -2226483383   47293.9     2046342
+## t2*   247512889 -204881.9     4439545</code></pre>
+<pre class="r"><code>plot(boot.out)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+The professor’s diamond ring carat is 0.9, has color “J”, has a “Very Good Cut”,</p>
+<pre class="r"><code>filter(ppd.df, Carat == 0.9)</code></pre>
+<pre><code>## # A tibble: 11 x 9
+##    Carat Colour Clarity Cut   Certification Polish Symmetry Price              
+##    &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt;    &lt;dttm&gt;             
+##  1   0.9 J      VS2     V     GIA           V      V        1908-03-24 00:00:00
+##  2   0.9 I      SI1     V     GIA           X      V        1908-04-15 00:00:00
+##  3   0.9 G      SI2     F     GIA           V      V        1908-04-30 00:00:00
+##  4   0.9 H      SI2     V     GIA           V      G        1908-04-30 00:00:00
+##  5   0.9 G      SI2     F     GIA           G      V        1908-04-30 00:00:00
+##  6   0.9 H      SI2     F     GIA           V      G        1908-05-13 00:00:00
+##  7   0.9 J      VS2     G     AGS           X      X        1908-05-21 00:00:00
+##  8   0.9 I      SI2     G     GIA           V      V        1908-05-26 00:00:00
+##  9   0.9 I      SI2     V     GIA           V      V        1908-05-26 00:00:00
+## 10   0.9 F      SI2     F     GIA           v      G        1908-06-07 00:00:00
+## 11   0.9 I      SI1     G     GIA           V      G        1908-06-07 00:00:00
+## # ... with 1 more variable: Wholesaler &lt;dbl&gt;</code></pre>
+<pre class="r"><code>ggplot(ppd.df, aes(Carat, Price, color = Colour))+
+  geom_line()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+The professor is paying between 1,906 dollars - 2,000 dollars, given the information from the “plot(Price~Carat),” as well as the information given by the plot above, which codes the colors for the carats, showing all diamond rings with the “J” color and the numerical data for “Carat.” The reason for the professor having to pay more or less than someone else with the same color and carat, is due to the quality of the ring’s cut or clarity, which varies, either increasing or decreasing the ring’s worth.</p>

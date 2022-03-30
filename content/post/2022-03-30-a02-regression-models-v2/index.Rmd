@@ -1,0 +1,71 @@
+---
+title: 'A02: Regression Models v2'
+author: ''
+date: '2022-03-30'
+slug: a02-regression-models-v2
+categories: []
+tags: []
+---
+```{r}
+# Call libraries
+library(readxl)
+library(tidyverse)
+library(boot)
+```
+Import the Professor Proposes Data set
+
+```{r}
+# Import Data set
+url <- "https://github.com/AF11703/website_delete/blob/main/Professor_Proposes_Data.xlsx?raw=true"
+destfile <- "Professor_Proposes_Data.xlsx"
+curl::curl_download(url, destfile)
+ppd.df <- read_excel(destfile)
+View(ppd.df)
+attach(ppd.df)
+```
+
+```{r}
+train <- sample(440, 220)
+head(train)
+```
+
+```{r}
+lm.fit <- lm(Price ~ Carat, data = ppd.df)
+lm.fit
+```
+
+```{r}
+plot(Price ~ Carat)
+```
+Model for High Price and High Carat
+```{r}
+lm.fit.poly <- lm(Price ~ poly(Carat, 2), data = ppd.df, subset = train)
+lm.fit.poly
+```
+
+
+Bootstrap
+```{r}
+boot.fn <- function(data, index){
+  return(coef(lm(Price ~ Carat, data = data, subset = index)))
+}
+
+boot.fn(ppd.df, 1:220)
+```
+```{r}
+boot.out <- boot(ppd.df, boot.fn, 100)
+boot.out
+```
+```{r}
+plot(boot.out)
+```
+The professor's diamond ring carat is 0.9, has color "J", has a "Very Good Cut", 
+
+```{r}
+filter(ppd.df, Carat == 0.9)
+```
+```{r}
+ggplot(ppd.df, aes(Carat, Price, color = Colour))+
+  geom_line()
+```
+The professor is paying between 1,906 dollars - 2,000 dollars, given the information from the "plot(Price~Carat)," as well as the information given by the plot above, which codes the colors for the carats, showing all diamond rings with the "J" color and the numerical data for "Carat." The reason for the professor having to pay more or less than someone else with the same color and carat, is due to the quality of the ring's cut or clarity, which varies, either increasing or decreasing the ring's worth.
