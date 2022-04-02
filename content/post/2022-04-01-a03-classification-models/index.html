@@ -1,0 +1,183 @@
+---
+title: 'A03: Classification Models'
+author: ''
+date: '2022-04-01'
+slug: a03-classification-models
+categories: []
+tags: []
+---
+
+
+
+<div id="call-libraries" class="section level1">
+<h1>Call libraries</h1>
+<pre class="r"><code>library(openintro)</code></pre>
+<pre><code>## Warning: package &#39;openintro&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Loading required package: airports</code></pre>
+<pre><code>## Loading required package: cherryblossom</code></pre>
+<pre><code>## Loading required package: usdata</code></pre>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.8
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(tidymodels)</code></pre>
+<pre><code>## Warning: package &#39;tidymodels&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## -- Attaching packages -------------------------------------- tidymodels 0.2.0 --</code></pre>
+<pre><code>## v broom        0.7.12     v rsample      0.1.1 
+## v dials        0.1.0      v tune         0.2.0 
+## v infer        1.0.0      v workflows    0.2.6 
+## v modeldata    0.1.1      v workflowsets 0.2.1 
+## v parsnip      0.2.1      v yardstick    0.0.9 
+## v recipes      0.2.0</code></pre>
+<pre><code>## Warning: package &#39;dials&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;scales&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;modeldata&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;parsnip&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;recipes&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;rsample&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;tune&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;workflows&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;workflowsets&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;yardstick&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## -- Conflicts ----------------------------------------- tidymodels_conflicts() --
+## x scales::discard() masks purrr::discard()
+## x dplyr::filter()   masks stats::filter()
+## x recipes::fixed()  masks stringr::fixed()
+## x dplyr::lag()      masks stats::lag()
+## x yardstick::spec() masks readr::spec()
+## x recipes::step()   masks stats::step()
+## * Search for functions across packages at https://www.tidymodels.org/find/</code></pre>
+<pre class="r"><code>library(ggridges)</code></pre>
+<pre><code>## Warning: package &#39;ggridges&#39; was built under R version 4.1.3</code></pre>
+</div>
+<div id="import-datasets" class="section level1">
+<h1>Import Datasets</h1>
+<pre class="r"><code>url1 &lt;- &#39;https://raw.githubusercontent.com/AF11703/website_delete/main/gender_submission.csv&#39;
+gendersubs &lt;- read_csv(url1)</code></pre>
+<pre><code>## Rows: 418 Columns: 2
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## dbl (2): PassengerId, Survived
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>url2 &lt;- &#39;https://raw.githubusercontent.com/AF11703/website_delete/main/train.csv&#39;
+train &lt;- read_csv(url2)</code></pre>
+<pre><code>## Rows: 891 Columns: 12
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (5): Name, Sex, Ticket, Cabin, Embarked
+## dbl (7): PassengerId, Survived, Pclass, Age, SibSp, Parch, Fare
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>url3 &lt;- &#39;https://raw.githubusercontent.com/AF11703/website_delete/main/test.csv&#39;
+test &lt;- read_csv(url3)</code></pre>
+<pre><code>## Rows: 418 Columns: 11
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (5): Name, Sex, Ticket, Cabin, Embarked
+## dbl (6): PassengerId, Pclass, Age, SibSp, Parch, Fare
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>View(gendersubs)
+View(train)
+View(test)</code></pre>
+<pre class="r"><code>glimpse(train)</code></pre>
+<pre><code>## Rows: 891
+## Columns: 12
+## $ PassengerId &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,~
+## $ Survived    &lt;dbl&gt; 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1~
+## $ Pclass      &lt;dbl&gt; 3, 1, 3, 1, 3, 3, 1, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 2, 3, 3~
+## $ Name        &lt;chr&gt; &quot;Braund, Mr. Owen Harris&quot;, &quot;Cumings, Mrs. John Bradley (Fl~
+## $ Sex         &lt;chr&gt; &quot;male&quot;, &quot;female&quot;, &quot;female&quot;, &quot;female&quot;, &quot;male&quot;, &quot;male&quot;, &quot;mal~
+## $ Age         &lt;dbl&gt; 22, 38, 26, 35, 35, NA, 54, 2, 27, 14, 4, 58, 20, 39, 14, ~
+## $ SibSp       &lt;dbl&gt; 1, 1, 0, 1, 0, 0, 0, 3, 0, 1, 1, 0, 0, 1, 0, 0, 4, 0, 1, 0~
+## $ Parch       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 1, 0, 0, 5, 0, 0, 1, 0, 0, 0~
+## $ Ticket      &lt;chr&gt; &quot;A/5 21171&quot;, &quot;PC 17599&quot;, &quot;STON/O2. 3101282&quot;, &quot;113803&quot;, &quot;37~
+## $ Fare        &lt;dbl&gt; 7.2500, 71.2833, 7.9250, 53.1000, 8.0500, 8.4583, 51.8625,~
+## $ Cabin       &lt;chr&gt; NA, &quot;C85&quot;, NA, &quot;C123&quot;, NA, NA, &quot;E46&quot;, NA, NA, NA, &quot;G6&quot;, &quot;C~
+## $ Embarked    &lt;chr&gt; &quot;S&quot;, &quot;C&quot;, &quot;S&quot;, &quot;S&quot;, &quot;S&quot;, &quot;Q&quot;, &quot;S&quot;, &quot;S&quot;, &quot;S&quot;, &quot;C&quot;, &quot;S&quot;, &quot;S&quot;~</code></pre>
+<pre class="r"><code>train %&gt;%
+  ggplot(aes(x = Pclass, y = Survived, color = Survived)) +
+  geom_jitter() +
+  labs(
+    x = &quot;Passenger Class (from 1-3)&quot;,
+    y = &quot;Survived&quot;,
+    title = &quot;Titanic Passengers that Survived and Died&quot;
+  ) </code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+In this plot we can see that most of the passengers who passed away were in third class, the lowest socioeconomic standing of the three, while most of the passengers who survived were in first class, the highest socioeconomic standing of the three.</p>
+<pre class="r"><code>train %&gt;%
+  group_by(Survived) %&gt;%
+  summarise(mean_class = mean(Pclass))</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   Survived mean_class
+##      &lt;dbl&gt;      &lt;dbl&gt;
+## 1        0       2.53
+## 2        1       1.95</code></pre>
+<p>This confirms what we saw in the plot. Therefore, we can make an inference that class is a good indicator for predicting whether a passenger will survive or not.</p>
+</div>
+<div id="fitting-logistic-regression" class="section level1">
+<h1>Fitting Logistic Regression</h1>
+<pre class="r"><code>d &lt;- tibble(p = seq(0.001, 0.999, length.out = 10000)) %&gt;%
+  mutate(logit_p = log(p/(1-p)))
+
+d %&gt;%
+  ggplot(aes(x = p, y = logit_p)) +
+  geom_line() +
+  xlim(0,1) +
+  ylab(&quot;logit(p)&quot;) +
+  labs(title = &quot;logit(p) vs. p&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>train$Survived = as.factor(train$Survived)</code></pre>
+<pre class="r"><code>survive_fit &lt;- logistic_reg() %&gt;%
+  set_engine(&quot;glm&quot;) %&gt;%
+  fit(Survived~Pclass, data = train)
+tidy(survive_fit)</code></pre>
+<pre><code>## # A tibble: 2 x 5
+##   term        estimate std.error statistic  p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)    1.45     0.207       6.97 3.06e-12
+## 2 Pclass        -0.850    0.0871     -9.76 1.75e-22</code></pre>
+<pre class="r"><code>newdata &lt;- tibble(
+  Pclass = c(1, 2, 3),
+  color = c(&quot;#A7D5E8&quot;, &quot;#e9d968&quot;, &quot;8fada7&quot;),
+  shape = c(22, 23, 24)
+)
+
+y_hat &lt;- predict(survive_fit, newdata, type = &quot;raw&quot;)
+
+p_hat &lt;- exp(y_hat) / (1 + exp(y_hat))
+
+newdata &lt;- newdata %&gt;%
+  bind_cols(
+    y_hat = y_hat,
+    p_hat = p_hat
+  )
+
+survive_aug &lt;- augment(survive_fit$fit) %&gt;%
+  mutate(prob = exp(.fitted) / (1 + exp(.fitted)))</code></pre>
+<pre class="r"><code>ggplot(survive_aug, aes(x = Pclass)) +
+  geom_point(aes(y = as.numeric(Survived)-1, color = Survived), alpha = 0.3) +
+  scale_color_manual(values = c(&quot;#DEB4A0&quot;, &quot;#CA235F&quot;))+
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = &quot;none&quot;) +
+  geom_line(aes(y = prob)) +
+  geom_point(data = newdata, aes(x = Pclass, y = p_hat), fill = newdata$color, shape = newdata$shape, stroke = 1, size = 6) +
+  labs(
+    x = &quot;Class of Passengers&quot;,
+    y = &quot;Survived&quot;,
+    title = &quot;Passengers who Survived and Died&quot;
+  )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+This model suggests that class 3 passengers are more likely to die on the Titanic, whereas class 2 and 1 passengers are more likely to survive, with class 1 passengers being the most likely. With this in mind, it is not out of the question to look at the passengers within the “test” data set and give passengers within class 3 a low chance of surviving while giving passengers within class 1 a high chance of surviving.</p>
+</div>
