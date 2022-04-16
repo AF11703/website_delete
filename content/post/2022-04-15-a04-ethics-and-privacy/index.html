@@ -1,0 +1,100 @@
+---
+title: 'A04: Ethics and Privacy'
+author: ''
+date: '2022-04-15'
+slug: a04-ethics-and-privacy
+categories: []
+tags: []
+---
+
+
+
+<p><em>Misleading Data Visualization</em></p>
+<div id="calling-libraries" class="section level1">
+<h1>Calling libraries</h1>
+<pre class="r"><code>library(tidyverse)</code></pre>
+</div>
+<div id="importing-visualization" class="section level1">
+<h1>Importing Visualization</h1>
+<script src="https://gist.github.com/AF11703/8d419474b4c36d6df0686553e95223cc.js"></script>
+<p>As shown in the visualization above, it shows the average number of Kansas county COVID cases per 100,000 people in a population, depending on whether the counties have a mask mandate or not, however, it is flawed as the scales do not match. Therefore, remodeling it to have the proper scales will allow for the visualization to be interpreted correctly.</p>
+</div>
+<div id="replicating-dataset" class="section level1">
+<h1>Replicating Dataset</h1>
+<pre class="r"><code>covid.data &lt;- tribble(
+  ~Date, ~Mask, ~No_Mask,
+  &quot;2020-07-12&quot;, 25.3, 9.9,
+  &quot;2020-07-13&quot;, 22.6, 9.7,
+  &quot;2020-07-14&quot;, 19.3, 9.2,
+  &quot;2020-07-15&quot;, 20, 9.8,
+  &quot;2020-07-16&quot;, 20.1, 9.9,
+  &quot;2020-07-17&quot;, 19.8, 9.8,
+  &quot;2020-07-18&quot;, 20.1, 9.7,
+  &quot;2020-07-19&quot;, 20.2, 9.2,
+  &quot;2020-07-20&quot;, 20.3, 8.7,
+  &quot;2020-07-21&quot;, 21, 8.5,  
+  &quot;2020-07-22&quot;, 20.8, 8.6,
+  &quot;2020-07-23&quot;, 19.8, 8.6,
+  &quot;2020-07-24&quot;, 20.1, 9.1,
+  &quot;2020-07-25&quot;, 19.7, 9.9,
+  &quot;2020-07-26&quot;, 19.3, 10,
+  &quot;2020-07-27&quot;, 18.3, 9.8,
+  &quot;2020-07-28&quot;, 16.7, 9.7,
+  &quot;2020-07-29&quot;, 16.4, 9.7,
+  &quot;2020-07-30&quot;, 16.5, 9.9,
+  &quot;2020-07-31&quot;, 16.4, 9.7,
+  &quot;2020-08-01&quot;, 16.2, 9,
+  &quot;2020-08-02&quot;, 16.1, 9,
+  &quot;2020-08-03&quot;, 16, 9.1
+)
+covid.data </code></pre>
+<pre><code>## # A tibble: 23 x 3
+##    Date        Mask No_Mask
+##    &lt;chr&gt;      &lt;dbl&gt;   &lt;dbl&gt;
+##  1 2020-07-12  25.3     9.9
+##  2 2020-07-13  22.6     9.7
+##  3 2020-07-14  19.3     9.2
+##  4 2020-07-15  20       9.8
+##  5 2020-07-16  20.1     9.9
+##  6 2020-07-17  19.8     9.8
+##  7 2020-07-18  20.1     9.7
+##  8 2020-07-19  20.2     9.2
+##  9 2020-07-20  20.3     8.7
+## 10 2020-07-21  21       8.5
+## # ... with 13 more rows</code></pre>
+<p>We now have our replicated data set, now we want to find the range of the variables in order to determine the range of the scale, i.e. what the scale should start at.</p>
+</div>
+<div id="finding-statistics" class="section level1">
+<h1>Finding statistics</h1>
+<pre class="r"><code>#Min, Max
+range(covid.data$Mask)</code></pre>
+<pre><code>## [1] 16.0 25.3</code></pre>
+<pre class="r"><code>range(covid.data$No_Mask)</code></pre>
+<pre><code>## [1]  8.5 10.0</code></pre>
+<p>As we can see above, “Mask” ranges from 16-25.3 and “No Mask” ranges from 8.5-10, therefore, our scales will start from approximately 8.5 and match with one another.</p>
+</div>
+<div id="plotting-data" class="section level1">
+<h1>Plotting Data</h1>
+<pre class="r"><code>MaskColor = &quot;red3&quot;
+NoMaskColor = &quot;blue3&quot;
+
+ggplot(covid.data, aes(x = Date, group = 1)) +
+  geom_line(aes(y = Mask), color = MaskColor) +
+  geom_line(aes(y = No_Mask), color = NoMaskColor) +
+  scale_y_continuous(
+    name = &quot;Mask&quot;,
+    sec.axis = sec_axis(~., name = &quot;No Mask&quot;, ) 
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), axis.title.y = element_text(color = MaskColor), axis.title.y.right = element_text(color = NoMaskColor)
+  ) +
+  ggtitle(&quot;Kansas Average COVID-19 Cases&quot;, &quot;(by County Mask Mandate )&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+Now that our scales are corrected and matched, we can see that Kansas counties which have no mask mandate seem to have a lower average number of COVID-19 cases, however, they seem to be maintaining the number of cases rather than decreasing, which over time, the counties which do have a mask mandate seem to do, though starting at a much higher average number of cases. This visualization has a very different interpretation than what it used to be. Now you can see clear differences between the average COVID-19 cases in certain counties, whereas originally, differences were almost negligible.</p>
+<p><em>Review: Cambridge Analytica whistleblower</em></p>
+<ul>
+<li>The video was structured well and had fairly relevant information when discussing the breach of ethics and privacy that Cambridge Analytica underwent, according to the man in the video, Christopher Wiley. Throughout the video, Christopher continues to mention multiple employees and people he worked for, such as Alexander Nix, which shows that the breach in privacy and ethics was not the work of a single man, but was deliberately orchestrated in order to create apps using millions upon millions of data from Facebook users. This breach in privacy, if correct, would ruin Cambridge Analytica’s reputation, as well as any support for the company that users may have. In the video itself, they mention that Cambridge Analytica has denied the allegations and says that their work is completely legal. Although the video is structured well, it lacks an objective environment around it. That is, it is organized to make it feel as if Christopher is telling the truth and nothing but the truth, even though all the video consists of are stories and Christopher saying that certain events occurred. This isn’t to say that what Cristopher says isn’t true, but it could be strengthened with more objective and concrete evidence, rather than by word of mouth.</li>
+</ul>
+<p><em>DataCamp: Data Privacy and Anonymization in R</em></p>
+<script src="https://gist.github.com/AF11703/d12ddb4254b6acb028360e148c4e9281.js"></script>
+</div>

@@ -1,0 +1,91 @@
+---
+title: 'A04: Ethics and Privacy'
+author: ''
+date: '2022-04-15'
+slug: a04-ethics-and-privacy
+categories: []
+tags: []
+---
+*Misleading Data Visualization*
+
+# Calling libraries
+```{r, warning = FALSE, message = FALSE}
+library(tidyverse)
+```
+
+# Importing Visualization
+
+<script src="https://gist.github.com/AF11703/8d419474b4c36d6df0686553e95223cc.js"></script>
+
+As shown in the visualization above, it shows the average number of Kansas county COVID cases per 100,000 people in a population, depending on whether the counties have a mask mandate or not, however, it is flawed as the scales do not match. Therefore, remodeling it to have the proper scales will allow for the visualization to be interpreted correctly.
+
+# Replicating Dataset 
+```{r}
+covid.data <- tribble(
+  ~Date, ~Mask, ~No_Mask,
+  "2020-07-12", 25.3, 9.9,
+  "2020-07-13", 22.6, 9.7,
+  "2020-07-14", 19.3, 9.2,
+  "2020-07-15", 20, 9.8,
+  "2020-07-16", 20.1, 9.9,
+  "2020-07-17", 19.8, 9.8,
+  "2020-07-18", 20.1, 9.7,
+  "2020-07-19", 20.2, 9.2,
+  "2020-07-20", 20.3, 8.7,
+  "2020-07-21", 21, 8.5,  
+  "2020-07-22", 20.8, 8.6,
+  "2020-07-23", 19.8, 8.6,
+  "2020-07-24", 20.1, 9.1,
+  "2020-07-25", 19.7, 9.9,
+  "2020-07-26", 19.3, 10,
+  "2020-07-27", 18.3, 9.8,
+  "2020-07-28", 16.7, 9.7,
+  "2020-07-29", 16.4, 9.7,
+  "2020-07-30", 16.5, 9.9,
+  "2020-07-31", 16.4, 9.7,
+  "2020-08-01", 16.2, 9,
+  "2020-08-02", 16.1, 9,
+  "2020-08-03", 16, 9.1
+)
+covid.data 
+```
+We now have our replicated data set, now we want to find the range of the variables in order to determine the range of the scale, i.e. what the scale should start at.
+
+# Finding statistics
+```{r}
+#Min, Max
+range(covid.data$Mask)
+
+range(covid.data$No_Mask)
+```
+As we can see above, "Mask" ranges from 16-25.3 and "No Mask" ranges from 8.5-10, therefore, our scales will start from approximately 8.5 and match with one another.
+
+# Plotting Data
+```{r}
+MaskColor = "red3"
+NoMaskColor = "blue3"
+
+ggplot(covid.data, aes(x = Date, group = 1)) +
+  geom_line(aes(y = Mask), color = MaskColor) +
+  geom_line(aes(y = No_Mask), color = NoMaskColor) +
+  scale_y_continuous(
+    name = "Mask",
+    sec.axis = sec_axis(~., name = "No Mask", ) 
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), axis.title.y = element_text(color = MaskColor), axis.title.y.right = element_text(color = NoMaskColor)
+  ) +
+  ggtitle("Kansas Average COVID-19 Cases", "(by County Mask Mandate )")
+```
+Now that our scales are corrected and matched, we can see that Kansas counties which have no mask mandate seem to have a lower average number of COVID-19 cases, however, they seem to be maintaining the number of cases rather than decreasing, which over time, the counties which do have a mask mandate seem to do, though starting at a much higher average number of cases. This visualization has a very different interpretation than what it used to be. Now you can see clear differences between the average COVID-19 cases in certain counties, whereas originally, differences were almost negligible. 
+
+*Review: Cambridge Analytica whistleblower*
+
+- The video was structured well and had fairly relevant information when discussing the breach of ethics and privacy that Cambridge Analytica underwent, according to the man in the video, Christopher Wiley. Throughout the video, Christopher continues to mention multiple employees and people he worked for, such as Alexander Nix, which shows that the breach in privacy and ethics was not the work of a single man, but was deliberately orchestrated in order to create apps using millions upon millions of data from Facebook users. This breach in privacy, if correct, would ruin Cambridge Analytica’s reputation, as well as any support for the company that users may have. In the video itself, they mention that Cambridge Analytica has denied the allegations and says that their work is completely legal. Although the video is structured well, it lacks an objective environment around it. That is, it is organized to make it feel as if Christopher is telling the truth and nothing but the truth, even though all the video consists of are stories and Christopher saying that certain events occurred. This isn’t to say that what Cristopher says isn’t true, but it could be strengthened with more objective and concrete evidence, rather than by word of mouth.  
+
+
+*DataCamp: Data Privacy and Anonymization in R*
+
+<script src="https://gist.github.com/AF11703/d12ddb4254b6acb028360e148c4e9281.js"></script>
+
+
